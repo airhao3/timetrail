@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Activity, Project } from './types';
 import { Timeline } from './components/Timeline';
 import { ProjectStats } from './components/ProjectStats';
 import { AddActivityModal } from './components/AddActivityModal';
 import { AddProjectModal } from './components/AddProjectModal';
 import { Layout, Plus, Filter } from 'lucide-react';
+import { storage } from './services/storage';
+import { useActivityState } from './hooks/useActivityState';
+import { message } from 'antd';
 
 const INITIAL_PROJECTS: Project[] = [
   { id: '1', name: 'Personal Website', color: '#3B82F6' },
@@ -48,8 +51,31 @@ const INITIAL_ACTIVITIES: Activity[] = [
 ];
 
 function App() {
-  const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
-  const [activities, setActivities] = useState<Activity[]>(INITIAL_ACTIVITIES);
+  const [projects, setProjects] = useState<Project[]>(() => {
+    try {
+      const savedProjects = storage.getProjects();
+      return savedProjects.length ? savedProjects : INITIAL_PROJECTS;
+    } catch (error) {
+      console.error('加载项目失败:', error);
+      return INITIAL_PROJECTS;
+    }
+  });
+
+  useEffect(() => {
+    storage.saveProjects(projects);
+  }, [projects]);
+
+  if (!Array.isArray(projects)) {
+    return <div>项目数据加载错误</div>;
+  }
+
+  const { 
+    activities, 
+    addActivity, 
+    updateActivity, 
+    deleteActivity 
+  } = useActivityState(INITIAL_ACTIVITIES);
+
   const [selectedProject, setSelectedProject] = useState<string | 'all'>('all');
   const [selectedStatus, setSelectedStatus] = useState<Activity['status'] | 'all'>('all');
   const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
@@ -62,12 +88,13 @@ function App() {
   });
 
   const handleAddActivity = (newActivity: Omit<Activity, 'id' | 'date'>) => {
-    const activity: Activity = {
-      ...newActivity,
-      id: (activities.length + 1).toString(),
-      date: new Date().toISOString(),
-    };
-    setActivities([activity, ...activities]);
+    try {
+      addActivity(newActivity);
+      message.success('活动添加成功');
+    } catch (error) {
+      console.error('添加活动失败:', error);
+      message.error('添加活动失败');
+    }
   };
 
   const handleAddProject = (newProject: { name: string; color: string }) => {
@@ -79,11 +106,7 @@ function App() {
   };
 
   const handleStatusChange = (activityId: string, newStatus: Activity['status']) => {
-    setActivities(activities.map(activity =>
-      activity.id === activityId
-        ? { ...activity, status: newStatus }
-        : activity
-    ));
+    updateActivity(activityId, { status: newStatus });
   };
 
   return (

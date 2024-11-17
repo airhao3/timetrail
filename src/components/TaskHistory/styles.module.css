@@ -1,0 +1,22 @@
+.timeline {
+    margin: 20px 0;
+    padding: 0 20px;
+}
+
+.historyItem {
+    margin-bottom: 8px;
+}
+
+.historyItem p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.historyItem small {
+    color: #999;
+}
+
+.loading {
+    padding: 50px;
+    text-align: center;
+} 

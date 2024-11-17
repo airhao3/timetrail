@@ -9,6 +9,20 @@ interface ActivityCardProps {
 }
 
 export function ActivityCard({ activity, project }: ActivityCardProps) {
+  if (!activity || !project) {
+    console.error('ActivityCard: 缺少必要属性');
+    return null;
+  }
+
+  const formatDate = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+    } catch (error) {
+      console.error('日期格式化错误:', error);
+      return '未知时间';
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       {activity.imageUrl && (
@@ -16,6 +30,9 @@ export function ActivityCard({ activity, project }: ActivityCardProps) {
           src={activity.imageUrl}
           alt={activity.title}
           className="w-full h-48 object-cover"
+          onError={(e) => {
+            e.currentTarget.src = '/placeholder.png';
+          }}
         />
       )}
       <div className="p-6">
@@ -55,7 +72,7 @@ export function ActivityCard({ activity, project }: ActivityCardProps) {
         
         <div className="mt-4 flex items-center justify-between">
           <span className="text-sm text-gray-500">
-            {formatDistanceToNow(new Date(activity.date), { addSuffix: true })}
+            {formatDate(activity.date)}
           </span>
           <span className={`px-3 py-1 rounded-full text-sm ${
             activity.status === 'completed'

@@ -1,0 +1,26 @@
+.container {
+    padding: 24px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-height: 200px;
+}
+
+.title {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.loading {
+    padding: 50px;
+    text-align: center;
+}
+
+.header {
+    margin-bottom: 24px;
+}
+
+.title {
+    margin: 16px 0;
+} 
